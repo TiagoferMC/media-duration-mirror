@@ -12,16 +12,19 @@
         ppath = path
     }
 
-    sub(path, "", $2)               # remove path
+    sub(path, "", $2)                       # remove path
 
-    match($2, /^[0-9]*/)
+    match($2, /^[[:digit:]]*/)
     num = substr($2, RSTART, RLENGTH)
 
-    sub(num, "", $2)                # remove num
-    sub(/\.\w+$/, "", $2)           # remove extensionn
-    sub(/^[ -:]+/, "", $2)          # remove any dashes or colons from the start
-    sub(/[-:]+.*/, "", $2)          # same as above but second occurannce and
-                                    # everything afterwardss
+    sub(num, "", $2)                        # remove num
+    sub(/\s?(\[.*\])?\.\w+$/, "", $2)       # remove extensionn and optional ID
+
+    sub(/^[ -:]+/, "", $2)                  # remove any dashes or colons from
+                                            # the start
+
+    sub(/[-:]\s.*/, "", $2)                 # same as above but second
+                                            # occurannce and everything after
     name = substr($2, 1, 20)
     if (name != $2)
         name = name"..."
@@ -30,9 +33,19 @@
 }
 /Duration/ {
     c++
-    match($2, /[0-9]+/)
+    match($2, /[[:digit:]]+/)
+
+    # note on variable names:
+    # ms - miliseconds
+    # s  - seconds
+    # m  - minutes
+    # h  - hours
+    #
+    # p stands for previous
+    # d stands for delta or difference
+
     ms=substr($2, RSTART, RLENGTH)
-    dms = ms  - pms
+    dms = ms - pms
     pms = ms
 
     if (dms >= 0)
